@@ -1,0 +1,55 @@
+﻿EUH029;A contatto con acqua libera un gas tossico;3
+EUH031;A contatto con acidi libera gas tossico;3
+EUH032;A contatto con acidi libera gas molto tossico;3,5
+EUH066;L'esposizione ripetuta può provocare secchezza e screpolature della pelle;2,5
+EUH070;Tossico per contatto oculare;6
+EUH071;Corrosivo per le vie respiratorie;6,5
+EUH201;Contiene Piombo. Non utilizzare su oggetti che possono essere masticati o succhiati dai bambini;6
+EUH201A;Attenzione! Contiene Piombo;6
+EUH202;Cianoacrilato. Pericolo. Incolla la pelle e gli occhi in pochi secondi. Tenere fuori dalla portata dei bambini.;4,5
+EUH203;Contiene Cromo (VI). Può provocare una reazione allergica.;4,5
+EUH204;Contiene Isocianati. Può provocare una reazione allergica;7
+EUH205;Contiene Composti Epossidici. Può provocare una reazione allergica.;4,5
+EUH206;Attenzione! Non utilizzare in combinazione con altri prodotti. Possono formarsi gas pericolosi (cloro);3
+EUH207;Attenzione! Contiene Cadmio. Durante l' uso si sviluppano fumi pericolosi. Leggere le informazioni fornite dal fabbricante. Rispettare le disposizioni di sicurezza.;8
+EUH208;Contiene Nome sostanza sensibilizzante. Può provocare una reazione allergica.;5
+H300 cat.1;Letale se ingerito;3
+H300 cat.2;Letale se ingerito;2,5
+H301;Tossico se ingerito;2,25
+H302;Nocivo se ingerito;2
+H304;Può essere letale in caso di ingestione e di penetrazione nelle vie respiratorie;5
+H310 cat.1;Letale a contatto con la pelle;6,5
+H310 cat.2;Letale a contatto con la pelle;5,5
+H311;Tossico a contatto con la pelle;4,5
+H312;Nocivo a contatto con la pelle;3
+H314 cat.1A;Provoca gravi ustioni cutanee e gravi lesioni oculari;6,25
+H314 cat.1B;Provoca gravi ustioni cutanee e gravi lesioni oculari;5,75
+H314 cat.1C;Provoca gravi ustioni cutanee e gravi lesioni oculari;5,5
+H315;Provoca irritazione cutanea;2,5
+H317 cat.1A;Può provocare una reazione allergica della pelle;6
+H317 cat.1B;Può provocare una reazione allergica della pelle;4,5
+H318;Provoca gravi lesioni oculari;4,5
+H319;Provoca grave irritazione oculare;3
+H330 cat.1;Letale se inalato;8,5
+H330 cat.2;Letale se inalato;7,5
+H331;Tossico se inalato;6
+H332;Nocivo se inalato;4,5
+H334 cat.1A;Può provocare sintomi allergici o asmatici o difficoltà  respiratorie se inalato;9
+H334 cat.1B;Può provocare sintomi allergici o asmatici o difficoltà  respiratorie se inalato;8
+H335;Può irritare le vie respiratorie;3,25
+H336;Può provocare sonnolenza o vertigini;3,5
+H341;Sospettato di provocare alterazioni genetiche;8
+H351;Sospettato di provocare il cancro;8
+H361;Sospettato di nuocere alla fertilità  o al feto;8
+H361d;Sospettato di nuocere al feto;7,5
+H361f;Sospettato di nuocere alla fertilità;7,5
+H361fd;Sospettato di nuocere alla fertilità. Sospettato di nuocere al feto;8
+H362;Può essere nocivo per i lattanti allattati al seno;6
+H370;Provoca danni agli organi;9,5
+H371;Può provocare danni agli organi;8
+H372;Provoca danni agli organi in caso di esposizione prolungata e ripetuta;8
+H373;Può provocare danni agli organi in caso di esposizione prolungata e ripetuta;7
+EUH380;Può interferire con il sistema endocrino negli esseri umani;10
+EUH381;Sospettato di interferire con il sistema endocrino negli esseri umani;8
+EUH211;Attenzione! In caso di vaporizzazione possono formarsi goccioline respirabili pericolose. Non respirare i vapori o le nebbie;5,5
+EUH212;Attenzione! In caso di utilizzo possono formarsi polveri respirabili pericolose. Non respirare le polveri;5,5
