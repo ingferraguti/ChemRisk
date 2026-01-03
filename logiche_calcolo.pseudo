@@ -1,0 +1,83 @@
+PSEUDOCODICE: LOGICHE DI CALCOLO
+
+// Calcolo indice di rischio per una esposizione
+FUNZIONE calcola_indice_rischio(esposizione, sostanza, misure_protezione)
+  // 1) Calcolo del fattore di pericolosità (P)
+  P = MAPPA_PERICOLO[sostanza.categoria_pericolo]
+  SE sostanza.frasi_h CONTIENE "H350" O "H340" ALLORA
+    P = MAX(P, 5)
+  FINE
+
+  // 2) Calcolo del fattore di uso/esposizione (E)
+  F_frequenza = MAPPA_FREQUENZA[esposizione.frequenza]
+  F_durata = NORMALIZZA_DURATA(esposizione.durata_minuti)
+  F_quantita = NORMALIZZA_QUANTITA(esposizione.quantita_utilizzata, esposizione.unita_quantita)
+  E = MEDIA_PESATA([F_frequenza, F_durata, F_quantita], pesi=[0.4, 0.3, 0.3])
+
+  // 3) Fattore di controllo (C) basato su misure di protezione
+  C = 1.0
+  PER OGNI misura IN misure_protezione
+    SE misura.tipo == COLLETTIVA
+      C = C * RIDUZIONE_COLLETTIVA[misura.efficacia]
+    SE misura.tipo == INDIVIDUALE
+      C = C * RIDUZIONE_INDIVIDUALE[misura.efficacia]
+    SE misura.tipo == PROCEDURALE
+      C = C * RIDUZIONE_PROCEDURALE[misura.efficacia]
+  FINE
+
+  // 4) Calcolo indice di rischio complessivo
+  indice = P * E * C
+
+  // 5) Assegnazione classe di rischio
+  SE indice < 3
+    classe = "BASSO"
+  ALTRIMENTI SE indice < 6
+    classe = "MEDIO"
+  ALTRIMENTI
+    classe = "ALTO"
+  FINE
+
+  RITORNA (indice, classe)
+FINE_FUNZIONE
+
+// Verifica conformità rispetto ai limiti di esposizione
+FUNZIONE verifica_limiti_esposizione(esposizione, sostanza)
+  limite_twa = TROVA_LIMITE(sostanza.limiti_esposizione, TWA)
+  limite_stel = TROVA_LIMITE(sostanza.limiti_esposizione, STEL)
+
+  // Stima concentrazione (placeholder per integrazione dati monitoraggio)
+  concentrazione = STIMA_CONCENTRAZIONE(esposizione)
+
+  conformita = TRUE
+  SE limite_twa ESISTE E concentrazione > limite_twa.valore
+    conformita = FALSE
+    AGGIUNGI_ALERT("Superato limite TWA")
+  FINE
+
+  SE limite_stel ESISTE E esposizione.durata_minuti <= 15 E concentrazione > limite_stel.valore
+    conformita = FALSE
+    AGGIUNGI_ALERT("Superato limite STEL")
+  FINE
+
+  RITORNA conformita
+FINE_FUNZIONE
+
+// Generazione raccomandazioni automatiche
+FUNZIONE genera_raccomandazioni(classe_rischio, misure_protezione)
+  raccomandazioni = LISTA_VUOTA
+
+  SE classe_rischio == "ALTO"
+    AGGIUNGI(raccomandazioni, "Implementare aspirazione localizzata")
+    AGGIUNGI(raccomandazioni, "Aggiornare DPI e formazione")
+  SE classe_rischio == "MEDIO"
+    AGGIUNGI(raccomandazioni, "Rafforzare procedure operative")
+  SE classe_rischio == "BASSO"
+    AGGIUNGI(raccomandazioni, "Monitoraggio periodico")
+  FINE
+
+  SE misure_protezione È VUOTA
+    AGGIUNGI(raccomandazioni, "Definire misure di protezione minime")
+  FINE
+
+  RITORNA raccomandazioni
+FINE_FUNZIONE

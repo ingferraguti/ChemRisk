@@ -1,0 +1,127 @@
+PSEUDOCODICE: STRUTTURA DATI
+
+// Entità principali
+ENTITA Azienda
+  id: UUID
+  ragione_sociale: STRING
+  partita_iva: STRING
+  indirizzo: STRING
+  contatti: LISTA<Contatto>
+  stabilimenti: LISTA<Stabilimento>
+  impianti: LISTA<Impianto>
+  sostanze: LISTA<Sostanza>
+  valutazioni_rischio: LISTA<ValutazioneRischio>
+  documenti: LISTA<Documento>
+FINE_ENTITA
+
+ENTITA Contatto
+  id: UUID
+  nome: STRING
+  ruolo: STRING
+  email: STRING
+  telefono: STRING
+FINE_ENTITA
+
+ENTITA Stabilimento
+  id: UUID
+  nome: STRING
+  ubicazione: STRING
+  reparti: LISTA<Reparto>
+FINE_ENTITA
+
+ENTITA Reparto
+  id: UUID
+  nome: STRING
+  mansioni: LISTA<Mansione>
+FINE_ENTITA
+
+ENTITA Mansione
+  id: UUID
+  nome: STRING
+  addetti: INTEGER
+  esposizioni: LISTA<Esposizione>
+FINE_ENTITA
+
+ENTITA Sostanza
+  id: UUID
+  nome: STRING
+  cas: STRING
+  categoria_pericolo: STRING
+  frasi_h: LISTA<STRING>
+  limiti_esposizione: LISTA<LimiteEsposizione>
+FINE_ENTITA
+
+ENTITA LimiteEsposizione
+  id: UUID
+  tipo: ENUM {TWA, STEL, CEILING}
+  valore: FLOAT
+  unita: STRING
+  riferimento_normativo: STRING
+FINE_ENTITA
+
+ENTITA Impianto
+  id: UUID
+  nome: STRING
+  tipologia: STRING
+  sostanze_utilizzate: LISTA<Sostanza>
+FINE_ENTITA
+
+ENTITA Esposizione
+  id: UUID
+  sostanza_id: UUID
+  mansione_id: UUID
+  frequenza: ENUM {RARA, OCCASIONALE, FREQUENTE}
+  durata_minuti: INTEGER
+  quantita_utilizzata: FLOAT
+  unita_quantita: STRING
+  modalita_uso: STRING
+  misure_protezione: LISTA<MisuraProtezione>
+FINE_ENTITA
+
+ENTITA MisuraProtezione
+  id: UUID
+  tipo: ENUM {COLLETTIVA, INDIVIDUALE, PROCEDURALE}
+  descrizione: STRING
+  efficacia: ENUM {BASSA, MEDIA, ALTA}
+FINE_ENTITA
+
+ENTITA ValutazioneRischio
+  id: UUID
+  azienda_id: UUID
+  data_valutazione: DATE
+  metodo: ENUM {MOVARISCH, ALTRO}
+  esiti: LISTA<EsitoValutazione>
+  note: STRING
+FINE_ENTITA
+
+ENTITA EsitoValutazione
+  id: UUID
+  esposizione_id: UUID
+  indice_rischio: FLOAT
+  classe_rischio: ENUM {BASSO, MEDIO, ALTO}
+  raccomandazioni: LISTA<Raccomandazione>
+FINE_ENTITA
+
+ENTITA Raccomandazione
+  id: UUID
+  titolo: STRING
+  descrizione: STRING
+  priorita: ENUM {BASSA, MEDIA, ALTA}
+FINE_ENTITA
+
+ENTITA Documento
+  id: UUID
+  tipo: ENUM {SDS, PROCEDURA, DVR, REPORT}
+  nome_file: STRING
+  percorso: STRING
+  data_caricamento: DATE
+FINE_ENTITA
+
+// Relazioni (riassunto)
+RELAZIONE Azienda 1--N Stabilimento
+RELAZIONE Stabilimento 1--N Reparto
+RELAZIONE Reparto 1--N Mansione
+RELAZIONE Mansione 1--N Esposizione
+RELAZIONE Sostanza 1--N Esposizione
+RELAZIONE ValutazioneRischio 1--N EsitoValutazione
+RELAZIONE EsitoValutazione N--1 Esposizione
