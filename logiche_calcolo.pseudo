@@ -8,7 +8,13 @@ FUNZIONE calcola_score_pericolo(agente_chimico)
   score = 1
 
   SE agente_chimico.tipo == "sostanza" O agente_chimico.tipo == "miscelaP"
-    score = MAX_SCORE_FRA_FRASI_H(agente_chimico.frasi_h)
+    score = 1
+    PER OGNI frase_h IN agente_chimico.frasi_h
+      f = PARSE_FLOAT(frase_h.score, separatore_decimale=",")
+      SE f > score
+        score = f
+      FINE
+    FINE
     SE agente_chimico.vlep == TRUE E score < 3
       score = 3
     FINE
@@ -41,6 +47,106 @@ FUNZIONE calcola_score_pericolo(agente_chimico)
   RITORNA 1
 FINE_FUNZIONE
 
+FUNZIONE CASI_PARTICOLARI_PROCESSO_ELEVATA_EMISSIONE(frasi_h)
+  // elevata emissione - soglia score >= 6.50 (inalatoria)
+  SE CONTIENE(frasi_h, {
+    "H330 cat.2", "H330 cat.1", "H334 cat.1A", "H334 cat.1B",
+    "H370", "H371", "H372", "H373",
+    "H341", "H351",
+    "H361", "H361f", "H361d", "H361fd",
+    "EUH207", "EUH071", "EUH204",
+    "EUH380", "EUH381"
+  }) RITORNA 5
+
+  // elevata emissione - score < 6.50 e >= 4.50 (inalatoria)
+  SE CONTIENE(frasi_h, {
+    "H332", "H331", "H317 cat.1A", "H317 cat.1B", "H362",
+    "EUH201", "EUH201A", "EUH203", "EUH205", "EUH212",
+    "H304", "EUH211"
+  }) RITORNA 3
+
+  // elevata emissione - score >= 6.50 (cutanea/ingestione)
+  SE CONTIENE(frasi_h, { "H310 cat.1" }) RITORNA 3
+
+  // elevata emissione - score < 4.50 e >= 3.00 (inalatoria)
+  SE CONTIENE(frasi_h, { "H336", "H335", "EUH206", "EUH029", "EUH031", "EUH032" }) RITORNA 2.25
+
+  // elevata emissione - score < 6.50 e >= 4.50 (cutanea/ingestione)
+  SE CONTIENE(frasi_h, {
+    "H311", "H310 cat.2", "H314 cat.1A", "H314 cat.1B", "H314 cat.1C",
+    "H318", "EUH070", "EUH202"
+  }) RITORNA 2.25
+
+  // elevata emissione - score < 4.50 e >= 3.00 (cutanea/ingestione)
+  SE CONTIENE(frasi_h, { "H312", "H300 cat.1", "H319" }) RITORNA 2
+
+  // elevata emissione - score < 3.00 e >= 2.00 (cutanea/ingestione)
+  SE CONTIENE(frasi_h, { "H302", "H301", "H315", "H300 cat.2", "EUH066" }) RITORNA 1.75
+
+  RITORNA 1
+FINE_FUNZIONE
+
+FUNZIONE CASI_PARTICOLARI_PROCESSO_BASSA_EMISSIONE(frasi_h)
+  // bassa emissione - score >= 6.50 (inalatoria)
+  SE CONTIENE(frasi_h, {
+    "H330 cat.2", "H330 cat.1", "H334 cat.1A", "H334 cat.1B",
+    "H370", "H371", "H372", "H373",
+    "H341", "H351",
+    "H361", "H361f", "H361d", "H361fd",
+    "EUH207", "EUH071", "EUH204",
+    "EUH380", "EUH381"
+  }) RITORNA 2.5
+
+  // bassa emissione - score < 6.50 e >= 4.50 (inalatoria)
+  SE CONTIENE(frasi_h, {
+    "H332", "H331", "H317 cat.1A", "H317 cat.1B", "H362",
+    "EUH201", "EUH201A", "EUH203", "EUH205",
+    "H304", "EUH211", "EUH212"
+  }) RITORNA 2
+
+  // bassa emissione - score < 4.50 e >= 3.00 (inalatoria)
+  SE CONTIENE(frasi_h, { "H336", "H335", "EUH206", "EUH029", "EUH031", "EUH032" }) RITORNA 1.75
+
+  // bassa emissione - cutanea/ingestione (qualsiasi categoria)
+  SE CONTIENE(frasi_h, {
+    "H310 cat.1", "H311", "H310 cat.2", "H314 cat.1A", "H314 cat.1B", "H314 cat.1C",
+    "H318", "EUH070", "EUH202", "H312", "H300 cat.1", "H319", "H302", "H301",
+    "H300 cat.2", "H315", "EUH066"
+  }) RITORNA 1.25
+
+  RITORNA 1
+FINE_FUNZIONE
+
+FUNZIONE CASI_PARTICOLARI_MISCELE_NON_PERICOLOSE(frasi_h)
+  // score >= 8
+  SE CONTIENE(frasi_h, {
+    "EUH207", "H330 cat.1", "H334 cat.1A", "H334 cat.1B",
+    "H370", "H371", "H372", "H341", "H351",
+    "H361", "H361fd", "EUH380", "EUH381"
+  }) RITORNA 5.5
+
+  // score < 8 (inalatoria non cat.4/irritazione/narcosi) o sensibilizzanti cutanei
+  SE CONTIENE(frasi_h, {
+    "H331", "H330 cat.2", "H373", "H304", "H361d", "H361f", "H362",
+    "EUH071", "H317 cat.1A", "EUH204", "EUH212", "EUH203", "EUH205",
+    "EUH201", "EUH201A", "EUH202", "H317 cat.1B", "EUH211"
+  }) RITORNA 4
+
+  // tossicità cat.4, reazione/narcosi/irritazione inalatoria
+  SE CONTIENE(frasi_h, { "H332", "H336", "H335", "EUH206", "EUH029", "EUH031", "EUH032" }) RITORNA 2.5
+
+  // cutanea/mucose/ingestione effetti acuti score >= 3
+  SE CONTIENE(frasi_h, {
+    "H312", "H311", "H310 cat.2", "EUH070", "H310 cat.1", "H300 cat.1",
+    "H314 cat.1A", "H314 cat.1B", "H314 cat.1C", "H318", "H319"
+  }) RITORNA 2.25
+
+  // cutanea/mucose/ingestione effetti acuti score < 3
+  SE CONTIENE(frasi_h, { "H302", "H301", "H300 cat.2", "H315", "EUH066" }) RITORNA 1.75
+
+  RITORNA 1
+FINE_FUNZIONE
+
 // 2) ESPOSIZIONE INALATORIA (sostanza/miscela)
 FUNZIONE calcola_einal_sostanza_miscela(stato_fisico, quantita_uso, tipologia_uso, tipologia_controllo, tempo_minuti, distanza_metri)
   // MATRICE 1: quantità + stato fisico
@@ -58,31 +164,31 @@ FUNZIONE calcola_einal_sostanza_miscela(stato_fisico, quantita_uso, tipologia_us
 
   // MATRICE 2: tipologia uso
   SE matrice1 == 1
-    matrice2 = (tipologia_uso == "manuale intensivo") ? 2 : 1
+    matrice2 = (tipologia_uso == 3) ? 2 : 1
   SE matrice1 == 2
-    matrice2 = (tipologia_uso == "uso chiuso") ? 1 : (tipologia_uso == "manuale intensivo") ? 3 : 2
+    matrice2 = (tipologia_uso == 0) ? 1 : (tipologia_uso == 3) ? 3 : 2
   SE matrice1 == 3
-    matrice2 = (tipologia_uso == "uso chiuso") ? 1 : (tipologia_uso == "manuale") ? 2 : 3
+    matrice2 = (tipologia_uso == 0) ? 1 : (tipologia_uso == 1) ? 2 : 3
   SE matrice1 == 4
-    matrice2 = (tipologia_uso == "uso chiuso") ? 2 : 3
+    matrice2 = (tipologia_uso == 0) ? 2 : 3
   FINE
 
   // MATRICE 3: tipologia controllo
   SE matrice2 == 1
-    matrice3 = (tipologia_controllo IN {"totale", "forte"}) ? 2 : 1
+    matrice3 = (tipologia_controllo IN {3, 4}) ? 2 : 1
   SE matrice2 == 2
-    matrice3 = (tipologia_controllo == "totale") ? 1 : (tipologia_controllo IN {"forte", "parziale"}) ? 2 : 3
+    matrice3 = (tipologia_controllo == 0) ? 1 : (tipologia_controllo IN {1, 2}) ? 2 : 3
   SE matrice2 == 3
-    matrice3 = (tipologia_controllo == "totale") ? 1 : (tipologia_controllo == "forte") ? 2 : 3
+    matrice3 = (tipologia_controllo == 0) ? 1 : (tipologia_controllo == 1) ? 2 : 3
   FINE
 
   // MATRICE 4: tempo di esposizione
   SE matrice3 == 1
-    matrice4 = (tempo_minuti < 120) ? 1 : (tempo_minuti < 360) ? 3 : 7
+    matrice4 = (tempo_minuti < 121) ? 1 : (tempo_minuti < 361) ? 3 : 7
   SE matrice3 == 2
-    matrice4 = (tempo_minuti < 15) ? 1 : (tempo_minuti < 120) ? 3 : (tempo_minuti < 360) ? 7 : 10
+    matrice4 = (tempo_minuti < 16) ? 1 : (tempo_minuti < 121) ? 3 : (tempo_minuti < 361) ? 7 : 10
   SE matrice3 == 3
-    matrice4 = (tempo_minuti < 15) ? 3 : (tempo_minuti < 120) ? 7 : 10
+    matrice4 = (tempo_minuti < 16) ? 3 : (tempo_minuti < 121) ? 7 : 10
   FINE
 
   coeff_distanza = COEFFICIENTE_DISTANZA(distanza_metri)
@@ -109,7 +215,7 @@ FUNZIONE calcola_einal_processo(quantita_uso, tipologia_controllo, tempo_minuti,
   // MATRICE C: quantità + tipologia controllo
   SE quantita_uso < 10
     c = (tipologia_controllo IN {"alto", "medio", "parziale"}) ? 1 : 2
-  ALTRIMENTI SE quantita_uso <= 100
+  ALTRIMENTI SE quantita_uso >= 10 O quantita_uso <= 100
     c = (tipologia_controllo == "alto") ? 1 : (tipologia_controllo IN {"medio", "parziale"}) ? 2 : 3
   ALTRIMENTI
     c = (tipologia_controllo == "alto") ? 1 : (tipologia_controllo == "medio") ? 2 : 3
@@ -124,7 +230,18 @@ FUNZIONE calcola_einal_processo(quantita_uso, tipologia_controllo, tempo_minuti,
     matrice = (tempo_minuti < 15) ? 3 : (tempo_minuti < 120) ? 7 : 10
   FINE
 
-  coeff_distanza = COEFFICIENTE_DISTANZA(distanza_metri)
+  // DISTANZA (con confronti stretti)
+  SE distanza_metri < 1
+    coeff_distanza = 1
+  SE distanza_metri < 3
+    coeff_distanza = 0.75
+  SE distanza_metri < 5
+    coeff_distanza = 0.5
+  SE distanza_metri < 10
+    coeff_distanza = 0.25
+  SE distanza_metri >= 10
+    coeff_distanza = 0.1
+  FINE
   einal = matrice * coeff_distanza
   RITORNA einal
 FINE_FUNZIONE
