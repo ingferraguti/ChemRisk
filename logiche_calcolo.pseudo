@@ -1,83 +1,183 @@
 PSEUDOCODICE: LOGICHE DI CALCOLO
 
-// Calcolo indice di rischio per una esposizione
-FUNZIONE calcola_indice_rischio(esposizione, sostanza, misure_protezione)
-  // 1) Calcolo del fattore di pericolosità (P)
-  P = MAPPA_PERICOLO[sostanza.categoria_pericolo]
-  SE sostanza.frasi_h CONTIENE "H350" O "H340" ALLORA
-    P = MAX(P, 5)
+SCOPO
+  DESCRIVI "Allineare le logiche di calcolo a quelle implementate nel progetto Movarisch1 (MoVaRisCh 2018)."
+
+// 1) CALCOLO INDICE DI PERICOLOSITA (score)
+FUNZIONE calcola_score_pericolo(agente_chimico)
+  score = 1
+
+  SE agente_chimico.tipo == "sostanza" O agente_chimico.tipo == "miscelaP"
+    score = MAX_SCORE_FRA_FRASI_H(agente_chimico.frasi_h)
+    SE agente_chimico.vlep == TRUE E score < 3
+      score = 3
+    FINE
+    RITORNA score
   FINE
 
-  // 2) Calcolo del fattore di uso/esposizione (E)
-  F_frequenza = MAPPA_FREQUENZA[esposizione.frequenza]
-  F_durata = NORMALIZZA_DURATA(esposizione.durata_minuti)
-  F_quantita = NORMALIZZA_QUANTITA(esposizione.quantita_utilizzata, esposizione.unita_quantita)
-  E = MEDIA_PESATA([F_frequenza, F_durata, F_quantita], pesi=[0.4, 0.3, 0.3])
-
-  // 3) Fattore di controllo (C) basato su misure di protezione
-  C = 1.0
-  PER OGNI misura IN misure_protezione
-    SE misura.tipo == COLLETTIVA
-      C = C * RIDUZIONE_COLLETTIVA[misura.efficacia]
-    SE misura.tipo == INDIVIDUALE
-      C = C * RIDUZIONE_INDIVIDUALE[misura.efficacia]
-    SE misura.tipo == PROCEDURALE
-      C = C * RIDUZIONE_PROCEDURALE[misura.efficacia]
+  SE agente_chimico.tipo == "miscelaNP"
+    frasi_componenti = FRASI_H_COMPONENTI(agente_chimico.sostanze)
+    score = CASI_PARTICOLARI_MISCELE_NON_PERICOLOSE(frasi_componenti)
+    SE CONTIENE_VLEP(agente_chimico.sostanze) E score < 2.25
+      score = 2.25
+    FINE
+    RITORNA score
   FINE
 
-  // 4) Calcolo indice di rischio complessivo
-  indice = P * E * C
+  SE agente_chimico.tipo == "processo"
+    score = 0
+    PER OGNI componente IN agente_chimico.sostanze
+      frasi_componente = FRASI_H_COMPONENTE(componente)
+      SE agente_chimico.alta_emissione == TRUE
+        temp = CASI_PARTICOLARI_PROCESSO_ELEVATA_EMISSIONE(frasi_componente)
+      ALTRIMENTI
+        temp = CASI_PARTICOLARI_PROCESSO_BASSA_EMISSIONE(frasi_componente)
+      FINE
+      score = MAX(score, temp)
+    FINE
+    RITORNA score
+  FINE
 
-  // 5) Assegnazione classe di rischio
-  SE indice < 3
-    classe = "BASSO"
-  ALTRIMENTI SE indice < 6
-    classe = "MEDIO"
+  RITORNA 1
+FINE_FUNZIONE
+
+// 2) ESPOSIZIONE INALATORIA (sostanza/miscela)
+FUNZIONE calcola_einal_sostanza_miscela(stato_fisico, quantita_uso, tipologia_uso, tipologia_controllo, tempo_minuti, distanza_metri)
+  // MATRICE 1: quantità + stato fisico
+  SE quantita_uso <= 0.1
+    matrice1 = (stato_fisico == "alta volatilita") ? 2 : 1
+  ALTRIMENTI SE quantita_uso <= 1
+    matrice1 = (stato_fisico == "liquido") ? 1 : (stato_fisico == "solido") ? 2 : 3
+  ALTRIMENTI SE quantita_uso <= 10
+    matrice1 = (stato_fisico == "liquido") ? 1 : (stato_fisico == "alta volatilita") ? 4 : 3
+  ALTRIMENTI SE quantita_uso <= 100
+    matrice1 = (stato_fisico == "liquido") ? 2 : (stato_fisico == "solido") ? 3 : 4
   ALTRIMENTI
-    classe = "ALTO"
+    matrice1 = (stato_fisico == "liquido") ? 2 : 4
   FINE
 
-  RITORNA (indice, classe)
+  // MATRICE 2: tipologia uso
+  SE matrice1 == 1
+    matrice2 = (tipologia_uso == "manuale intensivo") ? 2 : 1
+  SE matrice1 == 2
+    matrice2 = (tipologia_uso == "uso chiuso") ? 1 : (tipologia_uso == "manuale intensivo") ? 3 : 2
+  SE matrice1 == 3
+    matrice2 = (tipologia_uso == "uso chiuso") ? 1 : (tipologia_uso == "manuale") ? 2 : 3
+  SE matrice1 == 4
+    matrice2 = (tipologia_uso == "uso chiuso") ? 2 : 3
+  FINE
+
+  // MATRICE 3: tipologia controllo
+  SE matrice2 == 1
+    matrice3 = (tipologia_controllo IN {"totale", "forte"}) ? 2 : 1
+  SE matrice2 == 2
+    matrice3 = (tipologia_controllo == "totale") ? 1 : (tipologia_controllo IN {"forte", "parziale"}) ? 2 : 3
+  SE matrice2 == 3
+    matrice3 = (tipologia_controllo == "totale") ? 1 : (tipologia_controllo == "forte") ? 2 : 3
+  FINE
+
+  // MATRICE 4: tempo di esposizione
+  SE matrice3 == 1
+    matrice4 = (tempo_minuti < 120) ? 1 : (tempo_minuti < 360) ? 3 : 7
+  SE matrice3 == 2
+    matrice4 = (tempo_minuti < 15) ? 1 : (tempo_minuti < 120) ? 3 : (tempo_minuti < 360) ? 7 : 10
+  SE matrice3 == 3
+    matrice4 = (tempo_minuti < 15) ? 3 : (tempo_minuti < 120) ? 7 : 10
+  FINE
+
+  coeff_distanza = COEFFICIENTE_DISTANZA(distanza_metri)
+  einal = matrice4 * coeff_distanza
+  RITORNA (einal, matrice1, matrice2, matrice3, matrice4)
 FINE_FUNZIONE
 
-// Verifica conformità rispetto ai limiti di esposizione
-FUNZIONE verifica_limiti_esposizione(esposizione, sostanza)
-  limite_twa = TROVA_LIMITE(sostanza.limiti_esposizione, TWA)
-  limite_stel = TROVA_LIMITE(sostanza.limiti_esposizione, STEL)
-
-  // Stima concentrazione (placeholder per integrazione dati monitoraggio)
-  concentrazione = STIMA_CONCENTRAZIONE(esposizione)
-
-  conformita = TRUE
-  SE limite_twa ESISTE E concentrazione > limite_twa.valore
-    conformita = FALSE
-    AGGIUNGI_ALERT("Superato limite TWA")
+FUNZIONE COEFFICIENTE_DISTANZA(distanza_metri)
+  SE distanza_metri <= 1
+    RITORNA 1
+  SE distanza_metri <= 3
+    RITORNA 0.75
+  SE distanza_metri <= 5
+    RITORNA 0.5
+  SE distanza_metri <= 10
+    RITORNA 0.25
+  ALTRIMENTI
+    RITORNA 0.1
   FINE
-
-  SE limite_stel ESISTE E esposizione.durata_minuti <= 15 E concentrazione > limite_stel.valore
-    conformita = FALSE
-    AGGIUNGI_ALERT("Superato limite STEL")
-  FINE
-
-  RITORNA conformita
 FINE_FUNZIONE
 
-// Generazione raccomandazioni automatiche
-FUNZIONE genera_raccomandazioni(classe_rischio, misure_protezione)
-  raccomandazioni = LISTA_VUOTA
-
-  SE classe_rischio == "ALTO"
-    AGGIUNGI(raccomandazioni, "Implementare aspirazione localizzata")
-    AGGIUNGI(raccomandazioni, "Aggiornare DPI e formazione")
-  SE classe_rischio == "MEDIO"
-    AGGIUNGI(raccomandazioni, "Rafforzare procedure operative")
-  SE classe_rischio == "BASSO"
-    AGGIUNGI(raccomandazioni, "Monitoraggio periodico")
+// 3) ESPOSIZIONE INALATORIA (processo)
+FUNZIONE calcola_einal_processo(quantita_uso, tipologia_controllo, tempo_minuti, distanza_metri)
+  // MATRICE C: quantità + tipologia controllo
+  SE quantita_uso < 10
+    c = (tipologia_controllo IN {"alto", "medio", "parziale"}) ? 1 : 2
+  ALTRIMENTI SE quantita_uso <= 100
+    c = (tipologia_controllo == "alto") ? 1 : (tipologia_controllo IN {"medio", "parziale"}) ? 2 : 3
+  ALTRIMENTI
+    c = (tipologia_controllo == "alto") ? 1 : (tipologia_controllo == "medio") ? 2 : 3
   FINE
 
-  SE misure_protezione È VUOTA
-    AGGIUNGI(raccomandazioni, "Definire misure di protezione minime")
+  // MATRICE TEMPO
+  SE c == 1
+    matrice = (tempo_minuti < 120) ? 1 : (tempo_minuti < 360) ? 3 : 7
+  SE c == 2
+    matrice = (tempo_minuti < 15) ? 1 : (tempo_minuti < 120) ? 3 : (tempo_minuti < 360) ? 7 : 10
+  SE c == 3
+    matrice = (tempo_minuti < 15) ? 3 : (tempo_minuti < 120) ? 7 : 10
   FINE
 
-  RITORNA raccomandazioni
+  coeff_distanza = COEFFICIENTE_DISTANZA(distanza_metri)
+  einal = matrice * coeff_distanza
+  RITORNA einal
+FINE_FUNZIONE
+
+// 4) ESPOSIZIONE CUTANEA
+FUNZIONE calcola_ecute(tipo_uso_inal, livello_contatto, assenza_contatto)
+  SE assenza_contatto == TRUE
+    RITORNA 0
+  FINE
+
+  SE livello_contatto == 0
+    RITORNA 1
+  SE livello_contatto == 1
+    SE tipo_uso_inal == 0
+      RITORNA 1
+    SE tipo_uso_inal IN {1, 2}
+      RITORNA 3
+    SE tipo_uso_inal == 3
+      RITORNA 7
+  SE livello_contatto == 2
+    SE tipo_uso_inal IN {0, 1}
+      RITORNA 3
+    SE tipo_uso_inal IN {2, 3}
+      RITORNA 7
+  SE livello_contatto == 3
+    SE tipo_uso_inal IN {0, 1}
+      RITORNA 7
+    SE tipo_uso_inal IN {2, 3}
+      RITORNA 10
+  FINE
+
+  RITORNA -1
+FINE_FUNZIONE
+
+// 5) CALCOLO RISCHIO E CLASSIFICAZIONE
+FUNZIONE calcola_rischio_totale(score_pericolo, einal, ecute)
+  rischio_inal = score_pericolo * einal
+  rischio_cut = score_pericolo * ecute
+  rischio_totale = SQRT(rischio_inal^2 + rischio_cut^2)
+  rischio_totale = ARROTONDA(rischio_totale, 2)
+  RITORNA (rischio_inal, rischio_cut, rischio_totale)
+FINE_FUNZIONE
+
+FUNZIONE classifica_rischio(rischio_totale)
+  SE rischio_totale < 15
+    RITORNA "Rischio irrilevante per la salute"
+  SE rischio_totale < 21
+    RITORNA "Intervallo di incertezza"
+  SE rischio_totale < 41
+    RITORNA "Rischio superiore al rischio chimico irrilevante per la salute"
+  SE rischio_totale < 80
+    RITORNA "Zona di rischio elevato"
+  ALTRIMENTI
+    RITORNA "Zona di grave rischio"
+  FINE
 FINE_FUNZIONE
