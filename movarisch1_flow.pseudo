@@ -1,0 +1,115 @@
+TITOLO "ChemRisk - Logiche e flusso dell'interfaccia"
+
+SCOPO
+  DESCRIVI "Flusso operativo e logiche dell'applicazione in modo tecnologicamente neutro."
+
+DOMINIO_DATI
+  ENTITA Azienda
+    CAMPI "denominazione, indirizzo, contatti, partita_iva"
+  ENTITA Area
+    CAMPI "nome, note"
+    RELAZIONE "Appartiene a una Azienda"
+  ENTITA Lavoratore
+    CAMPI "nome, cognome, note"
+    RELAZIONE "Appartiene a una Area e a una Azienda"
+  ENTITA Valutazione
+    CAMPI "identificativo, lavoratore, tipo, punteggi, note"
+  ENTITA AgenteChimico
+    CAMPI "nome, classificazioni, parametri di rischio"
+
+PERSISTENZA
+  ARCHIVIO_LOCALE "contenitori dati separati per aziende, aree, lavoratori, valutazioni, agenti"
+  REGOLA "Ogni salvataggio genera un backup storico prima della sostituzione"
+  REGOLA "Gli identificativi sono incrementali e univoci per tipologia"
+
+INTERFACCIA
+  SCHERMATA Principale
+    COMPONENTI
+      LISTA Aziende
+      ALBERO "Aree -> Lavoratori"
+      LISTA ValutazioniDelLavoratore
+      PULSANTE "Nuova Azienda"
+      PULSANTE "Nuova Area"
+      PULSANTE "Nuovo Lavoratore"
+      PULSANTE "Avvia Valutazione Guidata"
+      PULSANTI "Sostanza", "Miscela Pericolosa", "Miscela Non Pericolosa", "Processo"
+    COMPORTAMENTI
+      QUANDO "apertura schermata"
+        ESEGUI "Carica elenco aziende dal repository locale"
+        MOSTRA "Lista aziende ordinata alfabeticamente"
+      QUANDO "selezione azienda"
+        ESEGUI "Carica aree collegate"
+        ESEGUI "Per ogni area, carica lavoratori collegati"
+        MOSTRA "Albero gerarchico Aree -> Lavoratori"
+      QUANDO "selezione area"
+        ABILITA "Nuovo Lavoratore"
+        NASCONDI "Avvia Valutazione Guidata"
+        MEMORIZZA "Area selezionata"
+      QUANDO "selezione lavoratore"
+        ABILITA "Avvia Valutazione Guidata"
+        NASCONDI "Nuovo Lavoratore"
+        CARICA "Elenco valutazioni del lavoratore"
+
+  SCHERMATA GestioneAzienda
+    MODALITA "Nuova" O "Modifica"
+    CAMPI "Anagrafica e contatti"
+    AZIONI
+      SALVA
+        SE "denominazione mancante"
+          CHIEDI "Conferma abbandono"
+        ALTRIMENTI
+          CREA_O_AGGIORNA "Azienda"
+          NOTIFICA "Schermata principale ricarica elenco aziende"
+
+  SCHERMATA GestioneArea
+    MODALITA "Nuova" O "Modifica"
+    CAMPI "Nome, Note"
+    AZIONI
+      SALVA
+        CREA_O_AGGIORNA "Area associata all'azienda"
+        NOTIFICA "Schermata principale ricarica albero aree"
+
+  SCHERMATA GestioneLavoratore
+    MODALITA "Nuovo" O "Modifica"
+    CAMPI "Nome, Cognome, Note"
+    AZIONI
+      SALVA
+        SE "Nuovo"
+          CREA "Lavoratore con nuova identità"
+        SE "Modifica"
+          SOSTITUISCI "Lavoratore esistente"
+        NOTIFICA "Schermata principale ricarica albero aree"
+
+  SCHERMATA ValutazioneGuidata
+    INPUT "Lavoratore selezionato, Tipo valutazione"
+    TIPI
+      TIPO "Sostanza Pericolosa"
+      TIPO "Miscela Pericolosa"
+      TIPO "Miscela Non Pericolosa"
+      TIPO "Processo"
+    SEZIONI_FLUSSO
+      SEZIONE "Definizione sostanze / agenti"
+        SE "Sostanza o Miscela Pericolosa"
+          SORGENTE_DATI "Elenco frasi di pericolo con score"
+        SE "Miscela Non Pericolosa o Processo"
+          SORGENTE_DATI "Elenco sostanze già archiviate"
+      SEZIONE "Esposizione Inalatoria"
+        RACCOGLI "Parametri di esposizione"
+        CALCOLA "Indice di rischio"
+      SEZIONE "Esposizione Cutanea"
+        RACCOGLI "Parametri di contatto"
+        CALCOLA "Indice di rischio"
+      SEZIONE "Processo (solo tipo Processo)"
+        RACCOGLI "Parametri specifici di processo"
+        CALCOLA "Indice di rischio"
+    OUTPUT
+      CREA "Valutazione con punteggi e metadati"
+      SALVA "Valutazione nel repository locale"
+      MOSTRA "Valutazioni aggiornate per il lavoratore"
+
+REGOLE_DI_FLUSSO
+  REGOLA "Le finestre di inserimento dati disabilitano temporaneamente la schermata principale"
+  REGOLA "L'albero Aree/Lavoratori è la base per attivare funzioni di valutazione"
+  REGOLA "La selezione del tipo di valutazione modifica campi e testi visibili"
+
+FINE
