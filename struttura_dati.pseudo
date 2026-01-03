@@ -1,127 +1,94 @@
-PSEUDOCODICE: STRUTTURA DATI
+PSEUDOCODICE: STRUTTURA DATI (MOVARISCH1)
 
-// Entità principali
+// Entità principali (derivate dalle classi C#)
 ENTITA Azienda
-  id: UUID
-  ragione_sociale: STRING
-  partita_iva: STRING
+  id: INTEGER
+  denominazione: STRING
   indirizzo: STRING
-  contatti: LISTA<Contatto>
-  stabilimenti: LISTA<Stabilimento>
-  impianti: LISTA<Impianto>
-  sostanze: LISTA<Sostanza>
-  valutazioni_rischio: LISTA<ValutazioneRischio>
-  documenti: LISTA<Documento>
-FINE_ENTITA
-
-ENTITA Contatto
-  id: UUID
-  nome: STRING
-  ruolo: STRING
-  email: STRING
+  cap: STRING
+  comune: STRING
+  provincia: STRING
+  contatto: STRING
   telefono: STRING
+  email: STRING
+  piva: STRING
 FINE_ENTITA
 
-ENTITA Stabilimento
-  id: UUID
+ENTITA Area
+  id: INTEGER
+  azienda_id: INTEGER
   nome: STRING
-  ubicazione: STRING
-  reparti: LISTA<Reparto>
-FINE_ENTITA
-
-ENTITA Reparto
-  id: UUID
-  nome: STRING
-  mansioni: LISTA<Mansione>
-FINE_ENTITA
-
-ENTITA Mansione
-  id: UUID
-  nome: STRING
-  addetti: INTEGER
-  esposizioni: LISTA<Esposizione>
-FINE_ENTITA
-
-ENTITA Sostanza
-  id: UUID
-  nome: STRING
-  cas: STRING
-  categoria_pericolo: STRING
-  frasi_h: LISTA<STRING>
-  limiti_esposizione: LISTA<LimiteEsposizione>
-FINE_ENTITA
-
-ENTITA LimiteEsposizione
-  id: UUID
-  tipo: ENUM {TWA, STEL, CEILING}
-  valore: FLOAT
-  unita: STRING
-  riferimento_normativo: STRING
-FINE_ENTITA
-
-ENTITA Impianto
-  id: UUID
-  nome: STRING
-  tipologia: STRING
-  sostanze_utilizzate: LISTA<Sostanza>
-FINE_ENTITA
-
-ENTITA Esposizione
-  id: UUID
-  sostanza_id: UUID
-  mansione_id: UUID
-  frequenza: ENUM {RARA, OCCASIONALE, FREQUENTE}
-  durata_minuti: INTEGER
-  quantita_utilizzata: FLOAT
-  unita_quantita: STRING
-  modalita_uso: STRING
-  misure_protezione: LISTA<MisuraProtezione>
-FINE_ENTITA
-
-ENTITA MisuraProtezione
-  id: UUID
-  tipo: ENUM {COLLETTIVA, INDIVIDUALE, PROCEDURALE}
-  descrizione: STRING
-  efficacia: ENUM {BASSA, MEDIA, ALTA}
-FINE_ENTITA
-
-ENTITA ValutazioneRischio
-  id: UUID
-  azienda_id: UUID
-  data_valutazione: DATE
-  metodo: ENUM {MOVARISCH, ALTRO}
-  esiti: LISTA<EsitoValutazione>
   note: STRING
 FINE_ENTITA
 
-ENTITA EsitoValutazione
-  id: UUID
-  esposizione_id: UUID
-  indice_rischio: FLOAT
-  classe_rischio: ENUM {BASSO, MEDIO, ALTO}
-  raccomandazioni: LISTA<Raccomandazione>
+ENTITA Lavoratore
+  id: INTEGER
+  idazienda: INTEGER
+  area_id: INTEGER
+  nome: STRING
+  cognome: STRING
+  note: STRING
 FINE_ENTITA
 
-ENTITA Raccomandazione
-  id: UUID
-  titolo: STRING
+ENTITA FraseH
+  codice: STRING
   descrizione: STRING
-  priorita: ENUM {BASSA, MEDIA, ALTA}
+  score: FLOAT
 FINE_ENTITA
 
-ENTITA Documento
-  id: UUID
-  tipo: ENUM {SDS, PROCEDURA, DVR, REPORT}
-  nome_file: STRING
-  percorso: STRING
-  data_caricamento: DATE
+ENTITA AgenteChimico
+  id: INTEGER
+  nome: STRING
+  identificativo: STRING
+  vlep: BOOLEAN
+  frasi_h: LISTA<FraseH>
+  sostanze_componenti: LISTA<INTEGER>
+  alta_emissione: BOOLEAN
+  tipo: ENUM {sostanza, miscelaP, miscelaNP, processo}
+FINE_ENTITA
+
+ENTITA Valutazione
+  id: INTEGER
+  id_lavoratore: INTEGER
+  nome_file_originale: STRING
+  data: DATETIME
+
+  agente_chimico: AgenteChimico
+
+  // Parametri esposizione inalatoria
+  einal: FLOAT
+  stato_fisico_inal: INTEGER
+  stato_fisico_inal_hr: STRING
+  quantita: FLOAT
+  tipo_uso_inal: INTEGER
+  tipo_uso_inal_hr: STRING
+  tipo_controllo_inal: INTEGER
+  tipo_controllo_inal_hr: STRING
+  tempo_inal: INTEGER
+  distanza: FLOAT
+
+  // Parametri esposizione cutanea
+  ecute: FLOAT
+  esposizione_cutanea: BOOLEAN
+  livelli_contatto_cutaneo: INTEGER
+  livelli_contatto_cutaneo_hr: STRING
+
+  // Parametri processo (solo per tipo "processo")
+  tipo_controllo_proc: INTEGER
+  quantita_proc: FLOAT
+  tempo_proc: INTEGER
+
+  // Esiti calcolati
+  r_inal: FLOAT
+  r_cute: FLOAT
+  rischio_cumulativo: FLOAT
 FINE_ENTITA
 
 // Relazioni (riassunto)
-RELAZIONE Azienda 1--N Stabilimento
-RELAZIONE Stabilimento 1--N Reparto
-RELAZIONE Reparto 1--N Mansione
-RELAZIONE Mansione 1--N Esposizione
-RELAZIONE Sostanza 1--N Esposizione
-RELAZIONE ValutazioneRischio 1--N EsitoValutazione
-RELAZIONE EsitoValutazione N--1 Esposizione
+RELAZIONE Azienda 1--N Area
+RELAZIONE Azienda 1--N Lavoratore
+RELAZIONE Area 1--N Lavoratore
+RELAZIONE Lavoratore 1--N Valutazione
+RELAZIONE Valutazione N--1 AgenteChimico
+RELAZIONE AgenteChimico 1--N FraseH
+RELAZIONE AgenteChimico (miscela/processo) N--N AgenteChimico (sostanza) tramite sostanze_componenti
