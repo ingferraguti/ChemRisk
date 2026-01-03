@@ -112,4 +112,81 @@ REGOLE_DI_FLUSSO
   REGOLA "L'albero Aree/Lavoratori è la base per attivare funzioni di valutazione"
   REGOLA "La selezione del tipo di valutazione modifica campi e testi visibili"
 
+LOGICHE_DI_CALCOLO
+  SCOPO "Estrarre le regole di calcolo di esposizione, pericolo e rischio."
+
+  PERICOLO
+    INPUT "Frasi di pericolo selezionate o componenti di miscela/processo"
+    REGOLA "Il punteggio di pericolo è il massimo degli score associati alle frasi di pericolo selezionate"
+    REGOLA "Per miscela/processo il punteggio deriva dalla combinazione dei componenti associati"
+
+  ESPOSIZIONE_INALATORIA_TIPO_SOSTANZA_O_MISCELA
+    INPUT "Stato fisico, quantità in uso, tipologia di utilizzo, tipologia di controllo, tempo, distanza"
+    MATRICE_1
+      SE "quantità <= 0.1"
+        SE "stato fisico = alta volatilità" -> "livello 2"
+        ALTRIMENTI -> "livello 1"
+      SE "0.1 < quantità <= 1"
+        SE "stato fisico = liquido" -> "livello 1"
+        SE "stato fisico = solido" -> "livello 2"
+        ALTRIMENTI -> "livello 3"
+      SE "1 < quantità <= 10"
+        SE "stato fisico = liquido" -> "livello 1"
+        SE "stato fisico = alta volatilità" -> "livello 4"
+        ALTRIMENTI -> "livello 3"
+      SE "10 < quantità <= 100"
+        SE "stato fisico = liquido" -> "livello 2"
+        SE "stato fisico = solido" -> "livello 3"
+        ALTRIMENTI -> "livello 4"
+      SE "quantità > 100"
+        SE "stato fisico = liquido" -> "livello 2"
+        ALTRIMENTI -> "livello 4"
+    MATRICE_2
+      SE "matrice_1 = 1" -> "uso manuale intensivo ? 2 : 1"
+      SE "matrice_1 = 2" -> "uso chiuso=1, uso manuale intensivo=3, altrimenti=2"
+      SE "matrice_1 = 3" -> "uso chiuso=1, uso manuale=2, altrimenti=3"
+      SE "matrice_1 = 4" -> "uso chiuso=2, altrimenti=3"
+    MATRICE_3
+      SE "matrice_2 = 1" -> "controllo elevato ? 2 : 1"
+      SE "matrice_2 = 2" -> "controllo totale=1, controllo parziale=2, altrimenti=3"
+      SE "matrice_2 = 3" -> "controllo totale=1, controllo forte=2, altrimenti=3"
+    MATRICE_4
+      SE "matrice_3 = 1" -> "tempo < 120 -> 1, tempo < 360 -> 3, altrimenti 7"
+      SE "matrice_3 = 2" -> "tempo < 15 -> 1, tempo < 120 -> 3, tempo < 360 -> 7, altrimenti 10"
+      SE "matrice_3 = 3" -> "tempo < 15 -> 3, tempo < 120 -> 7, altrimenti 10"
+    INDICE_ESPOSIZIONE_INALATORIA
+      REGOLA "einal = matrice_4 * coefficiente_distanza"
+      COEFFICIENTE_DISTANZA
+        SE "distanza <= 1" -> "1.0"
+        SE "1 < distanza <= 3" -> "0.75"
+        SE "3 < distanza <= 5" -> "0.5"
+        SE "5 < distanza <= 10" -> "0.25"
+        SE "distanza > 10" -> "0.1"
+
+  ESPOSIZIONE_INALATORIA_TIPO_PROCESSO
+    INPUT "quantità in uso, tipologia controllo, tempo, distanza"
+    MATRICE_C
+      SE "quantità < 10" -> "controllo alto=1, controllo medio=1, controllo basso=2, altrimenti=2"
+      SE "10 <= quantità <= 100" -> "controllo alto=1, controllo medio=2, controllo basso=3"
+      SE "quantità > 100" -> "controllo alto=1, controllo medio=2, controllo basso=3"
+    MATRICE_TEMPO
+      SE "c = 1" -> "tempo < 120 -> 1, tempo < 360 -> 3, altrimenti 7"
+      SE "c = 2" -> "tempo < 15 -> 1, tempo < 120 -> 3, tempo < 360 -> 7, altrimenti 10"
+      SE "c = 3" -> "tempo < 15 -> 3, tempo < 120 -> 7, altrimenti 10"
+    INDICE_ESPOSIZIONE_INALATORIA
+      REGOLA "einal = matrice_tempo * coefficiente_distanza (stesso schema della sostanza/miscela)"
+
+  ESPOSIZIONE_CUTANEA
+    INPUT "livello contatto, tipologia uso, flag assenza contatto"
+    REGOLA "Se assenza contatto, indice esposizione cutanea = 0"
+    MATRICE_CUTANEA
+      MAPPATURA "Combina tipologia uso e livello contatto in valori {1,3,7,10}"
+
+  RISCHIO
+    INPUT "score pericolo, einal, ecute"
+    REGOLA "rischio inalatorio = score * einal"
+    REGOLA "rischio cutaneo = score * ecute"
+    REGOLA "rischio totale = sqrt(rischio_inalatorio^2 + rischio_cutaneo^2)"
+    REGOLA "rischio totale arrotondato a due decimali"
+
 FINE
