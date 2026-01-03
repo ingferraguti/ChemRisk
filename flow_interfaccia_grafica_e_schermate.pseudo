@@ -2,130 +2,276 @@ PSEUDOCODICE: FLOW INTERFACCIA GRAFICA + SCHERMATE/FORM
 
 // Avvio applicazione
 QUANDO app_avviata
-  MOSTRA schermata_login
+  MOSTRA Form1 (finestra principale)
 FINE
 
-SCHERMATA schermata_login
-  CAMPO input_email (obbligatorio)
-  CAMPO input_password (obbligatorio, mascherato)
-  PULSANTE btn_accedi
-  LINK link_recupero_password
-
-  SE btn_accedi CLICK
-    CHIAMA servizio_authenticazione(email, password)
-    SE successo
-      NAVIGA dashboard
-    ALTRIMENTI
-      MOSTRA errore "Credenziali non valide"
-  FINE
-FINE_SCHERMATA
-
-SCHERMATA dashboard
-  SEZIONE riepilogo_aziende
-  SEZIONE ultime_valutazioni
-  SEZIONE notifiche
+SCHERMATA Form1 (Gestione aziende, aree, lavoratori, valutazioni)
+  SEZIONE elenco_aziende (listBox1)
+  SEZIONE albero_aree_lavoratori (treeView1)
+  SEZIONE elenco_valutazioni (listBox2)
+  PULSANTI
+    btn_aggiungi_azienda
+    btn_aggiungi_area
+    btn_aggiungi_lavoratore
+    btn_avvia_valutazione_guidata
+    btn_apri_valutazione
   MENU principale
-    VOCE "Aziende"
-    VOCE "Sostanze"
-    VOCE "Valutazioni"
-    VOCE "Documenti"
-    VOCE "Impostazioni"
+    VOCE "Agenti Chimici" -> sottovoci "Sostanze", "Miscele" (Pericolose, Non Pericolose), "Processi"
+    VOCE "Aiuto" -> sottovoci "Modello", "Copyright", "Info"
+    VOCE "Esci"
+  CONTESTO (menu contestuali)
+    AZIENDE: modifica, elimina
+    AREE/LAVORATORI: modifica, elimina
+    VALUTAZIONI: elimina
 
-  AZIONE seleziona_voce_menu
-    NAVIGA schermata_correlata
+  SE btn_aggiungi_azienda CLICK
+    APRI Form2 (nuova azienda)
+  FINE
+
+  SE azione_modifica_azienda
+    APRI Form2 (modifica azienda)
+  FINE
+
+  SE azione_elimina_azienda
+    CONFERMA eliminazione
+    ELIMINA azienda e dati correlati
+  FINE
+
+  SE btn_aggiungi_area CLICK
+    APRI FormAreaLavoratore (nuova area)
+  FINE
+
+  SE azione_modifica_area
+    APRI FormAreaLavoratore (modifica area)
+  FINE
+
+  SE btn_aggiungi_lavoratore CLICK
+    APRI FormLavoratore (nuovo lavoratore)
+  FINE
+
+  SE azione_modifica_lavoratore
+    APRI FormLavoratore (modifica lavoratore)
+  FINE
+
+  SE btn_avvia_valutazione_guidata CLICK
+    MOSTRA pannello_scelta_tipologia_agente
+  FINE
+
+  SE selezione_tipologia_agente
+    APRI FormSostanza (tipologia: sostanza | miscelaP | miscelaNP | processo)
+  FINE
+
+  SE btn_apri_valutazione CLICK
+    APRI FormValutazione (lettura valutazione salvata)
+  FINE
+
+  SE menu "Sostanze" CLICK
+    APRI CaricaSostanza (tipo: sostanza)
+  FINE
+
+  SE menu "Miscele -> Pericolose" CLICK
+    APRI CaricaSostanza (tipo: miscelaP)
+  FINE
+
+  SE menu "Miscele -> Non Pericolose" CLICK
+    APRI CaricaSostanza (tipo: miscelaNP)
+  FINE
+
+  SE menu "Processi" CLICK
+    APRI CaricaSostanza (tipo: processo)
+  FINE
+
+  SE menu "Modello" CLICK
+    APRI Modello
+  FINE
+
+  SE menu "Copyright" CLICK
+    APRI Copyright
+  FINE
+
+  SE menu "Info" CLICK
+    MOSTRA dialog_versione
+  FINE
+
+  SE menu "Esci" CLICK
+    CHIUDI applicazione
   FINE
 FINE_SCHERMATA
 
-SCHERMATA elenco_aziende
-  TABELLA aziende (colonne: Ragione sociale, P.IVA, Stabilimenti, Azioni)
-  PULSANTE btn_nuova_azienda
-  FILTRO ricerca_testo
-  FILTRO stato_valutazione
-
-  SE btn_nuova_azienda CLICK
-    NAVIGA form_azienda
-  FINE
-
-  SE riga_azienda CLICK
-    NAVIGA dettaglio_azienda(id_azienda)
-  FINE
-FINE_SCHERMATA
-
-SCHERMATA form_azienda
-  CAMPO ragione_sociale (obbligatorio)
-  CAMPO partita_iva (obbligatorio)
-  CAMPO indirizzo
-  SEZIONE contatti (lista editabile)
-  PULSANTE btn_salva
-  PULSANTE btn_annulla
+SCHERMATA Form2 (Anagrafica azienda)
+  CAMPI
+    denominazione (obbligatorio)
+    indirizzo, cap, comune, provincia
+    contatto, telefono, email, partita_iva
+  PULSANTI
+    btn_salva
+    btn_annulla
 
   SE btn_salva CLICK
-    VALIDA campi_obbligatori
+    VALIDA denominazione
     SE valido
-      SALVA azienda
-      NAVIGA dettaglio_azienda(nuovo_id)
+      SALVA azienda (nuova o modifica)
+      CHIUDI Form2
     ALTRIMENTI
-      MOSTRA errori_di_validazione
+      MOSTRA errore/confirm abbandono
+  FINE
+
+  SE btn_annulla CLICK
+    CHIUDI Form2
   FINE
 FINE_SCHERMATA
 
-SCHERMATA dettaglio_azienda(id_azienda)
-  TAB "Dati Generali"
-  TAB "Stabilimenti"
-  TAB "Impianti"
-  TAB "Sostanze"
-  TAB "Valutazioni"
-  TAB "Documenti"
+SCHERMATA FormAreaLavoratore (Anagrafica area)
+  CAMPI
+    nome_area (obbligatorio)
+    note
+  PULSANTI
+    btn_salva
+    btn_annulla
 
-  SE TAB "Stabilimenti" ATTIVO
-    MOSTRA elenco_stabilimenti
-    PULSANTE btn_nuovo_stabilimento
+  SE btn_salva CLICK
+    SALVA area (nuova o modifica)
+    CHIUDI FormAreaLavoratore
   FINE
 
-  SE TAB "Valutazioni" ATTIVO
-    MOSTRA elenco_valutazioni
-    PULSANTE btn_nuova_valutazione
-  FINE
-FINE_SCHERMATA
-
-SCHERMATA form_stabilimento
-  CAMPO nome (obbligatorio)
-  CAMPO ubicazione
-  SEZIONE reparti (lista editabile)
-  PULSANTE btn_salva
-  PULSANTE btn_annulla
-FINE_SCHERMATA
-
-SCHERMATA form_sostanza
-  CAMPO nome (obbligatorio)
-  CAMPO cas
-  CAMPO categoria_pericolo
-  SEZIONE frasi_h (multi-select)
-  SEZIONE limiti_esposizione (lista: tipo, valore, unita, riferimento)
-  PULSANTE btn_salva
-FINE_SCHERMATA
-
-SCHERMATA form_valutazione
-  SEZIONE seleziona_mansione
-  SEZIONE seleziona_sostanza
-  CAMPO frequenza
-  CAMPO durata_minuti
-  CAMPO quantita_utilizzata
-  CAMPO modalita_uso
-  SEZIONE misure_protezione
-  PULSANTE btn_calcola_rischio
-  PULSANTE btn_salva_valutazione
-
-  SE btn_calcola_rischio CLICK
-    ESEGUI calcolo_indice_rischio
-    MOSTRA anteprima_esito
+  SE btn_annulla CLICK
+    CHIUDI FormAreaLavoratore
   FINE
 FINE_SCHERMATA
 
-SCHERMATA elenco_documenti
-  TABELLA documenti (Tipo, Nome file, Data)
-  PULSANTE btn_carica_documento
-  SE btn_carica_documento CLICK
-    APRI dialog_upload
+SCHERMATA FormLavoratore (Anagrafica lavoratore)
+  CAMPI
+    nome
+    cognome
+    note
+  PULSANTI
+    btn_salva
+    btn_annulla
+
+  SE btn_salva CLICK
+    SALVA lavoratore (nuovo o modifica)
+    CHIUDI FormLavoratore
   FINE
+
+  SE btn_annulla CLICK
+    CHIUDI FormLavoratore
+  FINE
+FINE_SCHERMATA
+
+SCHERMATA FormSostanza (Procedura valutazione guidata)
+  SEZIONE contesto (lavoratore selezionato)
+  SEZIONE dati_agente_chimico
+    CAMPi base: nome, identificativo/CAS, VLEP (se applicabile)
+    FRASI_H (sostanza/miscelaP) oppure COMPONENTI (miscelaNP/processo)
+  SEZIONE esposizione
+    PANNELLI dinamici
+      ControlloEsposizioneInalatoria
+      ControlloEsposizioneInalatoria2
+      ControlloProcessoEsposizioneInalatoria
+      ControlloEsposizioneCutanea
+  AZIONI
+    btn_carica_agente_salvato -> CaricaSostanza (stesso tipo)
+    btn_crea_modifica_agente -> FormCreaSostanza
+    btn_calcola -> calcolo_indici_rischio
+    btn_salva -> salva valutazione
+
+  SE calcolo completato
+    APRI FormValutazione (riepilogo)
+  FINE
+FINE_SCHERMATA
+
+SCHERMATA CaricaSostanza (Archivio agenti chimici)
+  LISTA agenti salvati per tipo
+  DETTAGLIO agente selezionato (frasi H o componenti)
+  PULSANTI
+    btn_carica
+    btn_modifica
+    btn_elimina
+    btn_nuovo
+
+  SE btn_carica CLICK
+    RESTITUISCI agente a FormSostanza
+    CHIUDI CaricaSostanza
+  FINE
+
+  SE btn_modifica CLICK
+    APRI FormCreaSostanza (modifica)
+  FINE
+
+  SE btn_elimina CLICK
+    CONFERMA ed elimina agente
+    RICARICA lista
+  FINE
+
+  SE btn_nuovo CLICK
+    APRI FormCreaSostanza (nuovo)
+  FINE
+FINE_SCHERMATA
+
+SCHERMATA FormCreaSostanza (Crea/Modifica agente chimico)
+  CAMPI base: nome, identificativo/CAS, VLEP
+  SE tipo == processo
+    OPZIONI emissione (alta/bassa)
+  SE tipo in sostanza/miscelaP
+    LISTA frasi H (aggiungi/rimuovi)
+  SE tipo in miscelaNP/processo
+    LISTA sostanze componenti (aggiungi/rimuovi)
+  PULSANTI: salva, annulla
+FINE_SCHERMATA
+
+SCHERMATA FormValutazione (Riepilogo valutazione)
+  DATI: azienda, area, lavoratore, agente
+  RISCHI: rischio_inalatorio, rischio_cutaneo, rischio_totale
+  PULSANTI
+    btn_salva_doc
+    btn_chiudi
+    btn_modifica (se aperta da FormSostanza)
+
+  SE btn_salva_doc CLICK
+    APRI salva file .doc
+  FINE
+
+  SE btn_modifica CLICK
+    TORNA a FormSostanza (modifica valutazione)
+  FINE
+FINE_SCHERMATA
+
+SCHERMATA Backup
+  LISTA backup disponibili
+FINE_SCHERMATA
+
+SCHERMATA Modello
+  MOSTRA documento/modello informativo
+FINE_SCHERMATA
+
+SCHERMATA Copyright
+  MOSTRA info copyright
+FINE_SCHERMATA
+
+SCHERMATA GraficoStatoFisico
+  MOSTRA grafico stato fisico (strumento informativo)
+FINE_SCHERMATA
+
+SCHERMATA SpiegazioneTipoUso
+  MOSTRA spiegazione tipologia uso
+FINE_SCHERMATA
+
+SCHERMATA SpiegazioneTipoControllo
+  MOSTRA spiegazione tipologia controllo
+FINE_SCHERMATA
+
+SCHERMATA ValutazioneGuidata
+  CONTAINER per eventuali step MDI
+FINE_SCHERMATA
+
+SCHERMATA RiepilogoValutazioneGuidata
+  RIEPILOGO valutazione guidata (vista standalone)
+FINE_SCHERMATA
+
+SCHERMATA EsposizioneInalatoria
+  SCHERMATA legacy per esposizione inalatoria
+FINE_SCHERMATA
+
+SCHERMATA Form3
+  SCHERMATA legacy per flussi miscele (placeholder)
 FINE_SCHERMATA
