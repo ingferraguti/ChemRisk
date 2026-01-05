@@ -1,0 +1,277 @@
+[
+  {
+    "codice": "EUH029",
+    "descrizione": "A contatto con acqua libera un gas tossico",
+    "peso": 3.0
+  },
+  {
+    "codice": "EUH031",
+    "descrizione": "A contatto con acidi libera gas tossico",
+    "peso": 3.0
+  },
+  {
+    "codice": "EUH032",
+    "descrizione": "A contatto con acidi libera gas molto tossico",
+    "peso": 3.5
+  },
+  {
+    "codice": "EUH066",
+    "descrizione": "L'esposizione ripetuta può provocare secchezza e screpolature della pelle",
+    "peso": 2.5
+  },
+  {
+    "codice": "EUH070",
+    "descrizione": "Tossico per contatto oculare",
+    "peso": 6.0
+  },
+  {
+    "codice": "EUH071",
+    "descrizione": "Corrosivo per le vie respiratorie",
+    "peso": 6.5
+  },
+  {
+    "codice": "EUH201",
+    "descrizione": "Contiene Piombo. Non utilizzare su oggetti che possono essere masticati o succhiati dai bambini",
+    "peso": 6.0
+  },
+  {
+    "codice": "EUH201A",
+    "descrizione": "Attenzione! Contiene Piombo",
+    "peso": 6.0
+  },
+  {
+    "codice": "EUH202",
+    "descrizione": "Cianoacrilato. Pericolo. Incolla la pelle e gli occhi in pochi secondi. Tenere fuori dalla portata dei bambini.",
+    "peso": 4.5
+  },
+  {
+    "codice": "EUH203",
+    "descrizione": "Contiene Cromo (VI). Può provocare una reazione allergica.",
+    "peso": 4.5
+  },
+  {
+    "codice": "EUH204",
+    "descrizione": "Contiene Isocianati. Può provocare una reazione allergica",
+    "peso": 7.0
+  },
+  {
+    "codice": "EUH205",
+    "descrizione": "Contiene Composti Epossidici. Può provocare una reazione allergica.",
+    "peso": 4.5
+  },
+  {
+    "codice": "EUH206",
+    "descrizione": "Attenzione! Non utilizzare in combinazione con altri prodotti. Possono formarsi gas pericolosi (cloro)",
+    "peso": 3.0
+  },
+  {
+    "codice": "EUH207",
+    "descrizione": "Attenzione! Contiene Cadmio. Durante l' uso si sviluppano fumi pericolosi. Leggere le informazioni fornite dal fabbricante. Rispettare le disposizioni di sicurezza.",
+    "peso": 8.0
+  },
+  {
+    "codice": "EUH208",
+    "descrizione": "Contiene Nome sostanza sensibilizzante. Può provocare una reazione allergica.",
+    "peso": 5.0
+  },
+  {
+    "codice": "H300 cat.1",
+    "descrizione": "Letale se ingerito",
+    "peso": 3.0
+  },
+  {
+    "codice": "H300 cat.2",
+    "descrizione": "Letale se ingerito",
+    "peso": 2.5
+  },
+  {
+    "codice": "H301",
+    "descrizione": "Tossico se ingerito",
+    "peso": 2.25
+  },
+  {
+    "codice": "H302",
+    "descrizione": "Nocivo se ingerito",
+    "peso": 2.0
+  },
+  {
+    "codice": "H304",
+    "descrizione": "Può essere letale in caso di ingestione e di penetrazione nelle vie respiratorie",
+    "peso": 5.0
+  },
+  {
+    "codice": "H310 cat.1",
+    "descrizione": "Letale a contatto con la pelle",
+    "peso": 6.5
+  },
+  {
+    "codice": "H310 cat.2",
+    "descrizione": "Letale a contatto con la pelle",
+    "peso": 5.5
+  },
+  {
+    "codice": "H311",
+    "descrizione": "Tossico a contatto con la pelle",
+    "peso": 4.5
+  },
+  {
+    "codice": "H312",
+    "descrizione": "Nocivo a contatto con la pelle",
+    "peso": 3.0
+  },
+  {
+    "codice": "H314 cat.1A",
+    "descrizione": "Provoca gravi ustioni cutanee e gravi lesioni oculari",
+    "peso": 6.25
+  },
+  {
+    "codice": "H314 cat.1B",
+    "descrizione": "Provoca gravi ustioni cutanee e gravi lesioni oculari",
+    "peso": 5.75
+  },
+  {
+    "codice": "H314 cat.1C",
+    "descrizione": "Provoca gravi ustioni cutanee e gravi lesioni oculari",
+    "peso": 5.5
+  },
+  {
+    "codice": "H315",
+    "descrizione": "Provoca irritazione cutanea",
+    "peso": 2.5
+  },
+  {
+    "codice": "H317 cat.1A",
+    "descrizione": "Può provocare una reazione allergica della pelle",
+    "peso": 6.0
+  },
+  {
+    "codice": "H317 cat.1B",
+    "descrizione": "Può provocare una reazione allergica della pelle",
+    "peso": 4.5
+  },
+  {
+    "codice": "H318",
+    "descrizione": "Provoca gravi lesioni oculari",
+    "peso": 4.5
+  },
+  {
+    "codice": "H319",
+    "descrizione": "Provoca grave irritazione oculare",
+    "peso": 3.0
+  },
+  {
+    "codice": "H330 cat.1",
+    "descrizione": "Letale se inalato",
+    "peso": 8.5
+  },
+  {
+    "codice": "H330 cat.2",
+    "descrizione": "Letale se inalato",
+    "peso": 7.5
+  },
+  {
+    "codice": "H331",
+    "descrizione": "Tossico se inalato",
+    "peso": 6.0
+  },
+  {
+    "codice": "H332",
+    "descrizione": "Nocivo se inalato",
+    "peso": 4.5
+  },
+  {
+    "codice": "H334 cat.1A",
+    "descrizione": "Può provocare sintomi allergici o asmatici o difficoltà  respiratorie se inalato",
+    "peso": 9.0
+  },
+  {
+    "codice": "H334 cat.1B",
+    "descrizione": "Può provocare sintomi allergici o asmatici o difficoltà  respiratorie se inalato",
+    "peso": 8.0
+  },
+  {
+    "codice": "H335",
+    "descrizione": "Può irritare le vie respiratorie",
+    "peso": 3.25
+  },
+  {
+    "codice": "H336",
+    "descrizione": "Può provocare sonnolenza o vertigini",
+    "peso": 3.5
+  },
+  {
+    "codice": "H341",
+    "descrizione": "Sospettato di provocare alterazioni genetiche",
+    "peso": 8.0
+  },
+  {
+    "codice": "H351",
+    "descrizione": "Sospettato di provocare il cancro",
+    "peso": 8.0
+  },
+  {
+    "codice": "H361",
+    "descrizione": "Sospettato di nuocere alla fertilità  o al feto",
+    "peso": 8.0
+  },
+  {
+    "codice": "H361d",
+    "descrizione": "Sospettato di nuocere al feto",
+    "peso": 7.5
+  },
+  {
+    "codice": "H361f",
+    "descrizione": "Sospettato di nuocere alla fertilità",
+    "peso": 7.5
+  },
+  {
+    "codice": "H361fd",
+    "descrizione": "Sospettato di nuocere alla fertilità. Sospettato di nuocere al feto",
+    "peso": 8.0
+  },
+  {
+    "codice": "H362",
+    "descrizione": "Può essere nocivo per i lattanti allattati al seno",
+    "peso": 6.0
+  },
+  {
+    "codice": "H370",
+    "descrizione": "Provoca danni agli organi",
+    "peso": 9.5
+  },
+  {
+    "codice": "H371",
+    "descrizione": "Può provocare danni agli organi",
+    "peso": 8.0
+  },
+  {
+    "codice": "H372",
+    "descrizione": "Provoca danni agli organi in caso di esposizione prolungata e ripetuta",
+    "peso": 8.0
+  },
+  {
+    "codice": "H373",
+    "descrizione": "Può provocare danni agli organi in caso di esposizione prolungata e ripetuta",
+    "peso": 7.0
+  },
+  {
+    "codice": "EUH380",
+    "descrizione": "Può interferire con il sistema endocrino negli esseri umani",
+    "peso": 10.0
+  },
+  {
+    "codice": "EUH381",
+    "descrizione": "Sospettato di interferire con il sistema endocrino negli esseri umani",
+    "peso": 8.0
+  },
+  {
+    "codice": "EUH211",
+    "descrizione": "Attenzione! In caso di vaporizzazione possono formarsi goccioline respirabili pericolose. Non respirare i vapori o le nebbie",
+    "peso": 5.5
+  },
+  {
+    "codice": "EUH212",
+    "descrizione": "Attenzione! In caso di utilizzo possono formarsi polveri respirabili pericolose. Non respirare le polveri",
+    "peso": 5.5
+  }
+]
